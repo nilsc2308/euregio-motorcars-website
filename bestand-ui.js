@@ -22,6 +22,7 @@
     $$('[data-carpick]').forEach(el => carpick(el, cars));
     if ($('[data-marken]')) marken(cars);
     if ($('[data-fin-sentence]')) finSatz(b, cars);
+    if ($('[data-quick]')) quick(cars);
   });
   function fail() {
     const t = 'Der Bestand kann gerade nicht geladen werden. Alle Fahrzeuge finden Sie auf unserer <a href="https://home.mobile.de/EUREGIOMOTORCARSGMBH">Händlerseite bei mobile.de</a>.';
@@ -184,6 +185,26 @@
       });
       ScrollTrigger.refresh();
     }
+  }
+
+  // ---------- Schnellsuche im Einstieg ----------
+  function quick(cars) {
+    const f = $('[data-quick]'), n = $('[data-quick-n]', f);
+    const fillSel = (sel, key) => {
+      const c = {}; cars.forEach(x => x[key] && (c[x[key]] = (c[x[key]] || 0) + 1));
+      Object.keys(c).sort((a, b) => c[b] - c[a] || a.localeCompare(b)).forEach(k => sel.insertAdjacentHTML('beforeend', `<option value="${esc(k)}">${esc(k)} (${c[k]})</option>`));
+    };
+    fillSel($('[data-quick-make]', f), 'marke'); fillSel($('[data-quick-kat]', f), 'kategorie');
+    const count = () => {
+      const m = f.elements.marke.value, k = f.elements.kategorie.value, [a, c] = (f.elements.preis.value || '0-99999999').split('-').map(Number);
+      const r = cars.filter(x => (!m || x.marke === m) && (!k || x.kategorie === k) && x.preis >= a && x.preis <= c).length;
+      n.textContent = r;
+      $('button', f).disabled = !r;
+    };
+    f.addEventListener('change', count); count();
+    // leere Felder nicht in die Adresse schreiben
+    f.addEventListener('submit', () => [...f.elements].forEach(el => { if (el.name && !el.value) el.disabled = true; }));
+    addEventListener('pageshow', () => { [...f.elements].forEach(el => { if (el.tagName === 'SELECT') el.disabled = false; }); count(); });
   }
 
   // ---------- Finanzierung in einem Satz (Startseite) ----------

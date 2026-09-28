@@ -124,7 +124,7 @@ def footer(p):
 LD_BIZ = {
  "@context": "https://schema.org", "@type": "AutoDealer", "@id": BASE + "#firma",
  "name": FIRMA, "url": BASE, "telephone": "+49 2402 1247840", "faxNumber": "+49 2402 1247841", "email": MAIL,
- "image": BASE + "img/szene-hof-840-1600.webp", "logo": BASE + "apple-touch-icon.png",
+ "image": BASE + "img/szene-hof-1600.webp", "logo": BASE + "apple-touch-icon.png",
  "address": {"@type": "PostalAddress", "streetAddress": STR, "postalCode": PLZ, "addressLocality": "Stolberg (Rheinland)", "addressRegion": "NRW", "addressCountry": "DE"},
  "geo": {"@type": "GeoCoordinates", "latitude": GEO[0], "longitude": GEO[1]},
  "openingHoursSpecification": [
@@ -193,15 +193,15 @@ def page(p, body):
 PAGES = []
 
 # ---------------------------------------------------------------- Unterseiten-Kopf „Hof-Kopf“
-HK_Y = {'szene-hof': 88, 'cabrio': 72, 'x6': 70, 'werkstatt-840': 62, 'szene-hof-840': 66, 'cayenne-hof': 78, 'defender': 48, 'szene-werkstatt': 58, 'svr-hof': 74, 'cockpit-840': 55, 'rr-cockpit': 50, 'schalthebel': 50}
-
-def hofkopf(title, lead, photo, alt, kicker=''):
-    return f'''<section class="hofkopf" style="--y:{HK_Y.get(photo, 50)}%">
- <div class="hk-strip">{img(photo, alt, 'hk-img', '100vw', True)}</div>
- <div class="wrap hk-text">
-  <div class="hk-l">{f'<p class="kicker">{e(kicker)}</p>' if kicker else ''}<h1 class="split">{e(title)}</h1></div>
-  <div class="hk-r"><p class="lead">{lead}</p>
-   <p class="liveline"><span class="dot" aria-hidden="true"></span><span>Heute <b data-live-count>36</b> Fahrzeuge auf dem Hof · <span data-open-state>Mo–Fr 9–19, Sa 9–14</span></span></p></div>
+def hofkopf(title, lead, photo=None, alt=None, kicker=''):
+    # Foto: ein aktuelles Auto aus dem Bestand (per Skript), ohne Skript der Hof
+    seed = sum(ord(c) for c in title) % 97
+    return f'''<section class="hofkopf">
+ <div class="wrap hk-grid">
+  <div class="hk-text">{f'<p class="kicker">{e(kicker)}</p>' if kicker else ''}<h1 class="split">{e(title)}</h1>
+   <p class="lead">{lead}</p>
+   <p class="liveline"><span class="dot" aria-hidden="true"></span><span>Heute <b data-live-count>35</b> Fahrzeuge auf dem Hof · <span data-open-state>Mo–Fr 9–19, Sa 9–14</span></span></p></div>
+  <figure class="hk-fig" data-live-photo="{seed}">{img('szene-hof', 'Der Hof von Euregio Motorcars mit Halle, Silos und Fahrzeugen', 'hk-img', '(max-width: 800px) 100vw, 45vw', True)}<figcaption hidden></figcaption></figure>
  </div>
 </section>'''
 
@@ -273,55 +273,40 @@ def gear_parts():
     labels = ''.join(f'<text class="gl" data-g="{g}" x="{GEAR_POS[g][0]}" y="{GEAR_POS[g][1] + (-30 if GEAR_POS[g][1] < 100 else 44)}" text-anchor="middle">{g}</text>' for g, *_ in GEARS)
     btns = ''.join(f'<button type="button" role="tab" id="gt-{g}" aria-controls="gp-{g}" aria-selected="{"true" if i == 0 else "false"}" data-g="{g}" title="{e(t)}">{g}</button>' for i, (g, t, *_) in enumerate(GEARS))
     panels = ''.join(f'''<div class="gpanel{" on" if i == 0 else ""}" id="gp-{g}" role="tabpanel" aria-labelledby="gt-{g}" data-g="{g}">
-    {img(ph, alt, "", "(max-width: 900px) 100vw, 45vw")}
     <p class="g-no">Gang {g}</p><h3>{e(t)}</h3><ul>{"".join("<li>" + e(x) + "</li>" for x in items)}</ul>
     <p>{e(txt)}</p><a class="tool-link" href="{href}">{e(lbl)} {arrow()}</a></div>''' for i, (g, t, ph, alt, items, txt, href, lbl) in enumerate(GEARS))
     return labels, btns, panels
 
-SCENE_TXT = [
- ('Eschweilerstraße 167, Stolberg', 'Gute Gebrauchte.<br>Ehrlich beschrieben.', 'Euregio Motorcars – Gebrauchtwagen mit Charakter und Service rund ums Auto. Seit 2011 mit jedem Inserat bei mobile.de.'),
- ('Innen', 'So ehrlich wie außen.', 'Jedes Auto wird von allen Seiten fotografiert – Cockpit, Sitze, Kofferraum. Auf mobile.de bestätigen 100 % der Käufer: Fahrzeug wie beschrieben.'),
- ('Ausgesucht', 'Vom Kompakten bis zum SVR.', 'BMW, Land Rover, Mercedes-Benz, Porsche, Audi – der Bestand wechselt jede Woche. Was heute da ist, steht live auf dieser Seite.'),
- ('Service auf dem Gelände', 'Werkstatt, Reifen, HU.', 'Inspektion, Karosserie und Lack, Reifenlager, HU vor Ort und Zulassung – alles an einer Adresse.'),
- ('Heute auf dem Hof', '<span data-live-count>36</span> Autos warten.', 'Kommen Sie vorbei, rufen Sie an oder vereinbaren Sie gleich eine Probefahrt.'),
-]
-SCENE_IMG = [('szene-hof-840', 'BMW 840d Gran Coupé vor der anthrazitfarbenen Halle von Euregio Motorcars mit den zwei gelben Silos'),
-             ('szene-cockpit', 'Cockpit eines Land Rover Defender mit orangefarbenem Armaturenbrett'),
-             ('szene-svr', 'Schwarzer Range Rover Sport SVR vor der Halle, Euregio-Schild links'),
-             ('szene-werkstatt', 'Land Rover Defender vor dem Gebäude mit der Aufschrift Kfz-Werkstatt'),
-             ('szene-hof', 'Der ganze Hof von Euregio Motorcars unter blauem Himmel mit Halle, Silos und Fahrzeugen')]
-
-def scene():
-    slides = []
-    for i, (n, alt) in enumerate(SCENE_IMG):
-        src = f'src="img/{n}-1600.webp" srcset="img/{n}-800.webp 800w, img/{n}-1600.webp 1600w" fetchpriority="high"' if i == 0 else f'data-src="img/{n}-1600.webp" data-srcset="img/{n}-800.webp 800w, img/{n}-1600.webp 1600w"'
-        slides.append(f'<div class="sl sl{i}"><img {src} sizes="100vw" width="1600" height="1200" alt="{e(alt)}"></div>')
-    # vorgerechnete Bewegungsunschärfe für die Durchfahrt
-    slides.insert(3, '<div class="sl sl2b" aria-hidden="true"><img data-src="img/szene-svr-blur.webp" alt="" width="800" height="600"></div>')
-    slides.insert(5, '<div class="sl sl3b" aria-hidden="true"><img data-src="img/szene-werkstatt-blur.webp" alt="" width="800" height="600"></div>')
-    txt = ''.join(f'''<div class="st st{i}"{' aria-hidden="true"' if i else ''}><p class="kicker">{k}</p>{'<h1>' if i == 0 else '<h2>'}{h}{'</h1>' if i == 0 else '</h2>'}<p class="st-p">{t}</p>{('<div class="btns"><a class="btn mag" href="fahrzeuge.html">Bestand ansehen ' + arrow() + '</a><a class="btn ghost light mag" href="probefahrt.html">Probefahrt vereinbaren</a></div>') if i in (0, 4) else ''}</div>''' for i, (k, h, t) in enumerate(SCENE_TXT))
-    return f'''<section class="scene" id="szene" aria-label="Der Hof von Euregio Motorcars">
- <div class="stage">
-  {''.join(slides)}
-  <div class="wiper" aria-hidden="true"><i></i></div>
-  <div class="beam" aria-hidden="true"></div>
-  <svg class="plate" viewBox="0 0 520 112" aria-hidden="true"><rect x="2" y="2" width="516" height="108" rx="10" fill="#fff" stroke="#1d1d1f" stroke-width="4"/><rect x="6" y="6" width="54" height="100" rx="6" fill="#0c3c96"/><text x="33" y="92" text-anchor="middle" fill="#fff" font-size="30" font-weight="600">D</text><circle cx="33" cy="34" r="16" fill="none" stroke="#ffd400" stroke-width="3" stroke-dasharray="2 6.3"/><text x="290" y="82" text-anchor="middle" font-size="70" font-weight="600" fill="#1d1d1f" class="plate-t">STO·EM 167</text></svg>
-  <div class="scrim" aria-hidden="true"></div>
-  {txt}
-  <div class="gauge" aria-hidden="true"><svg viewBox="0 0 120 70"><path class="g-bg" d="M10 62 A50 50 0 0 1 110 62"/><path class="g-fg" d="M10 62 A50 50 0 0 1 110 62"/><g class="g-needle"><line x1="60" y1="62" x2="60" y2="22"/></g><circle cx="60" cy="62" r="4"/></svg><span>Hof</span></div>
+def hero():
+    return f'''<section class="hero" id="start" aria-labelledby="hero-h">
+ <div class="hero-img">{img('szene-hof', 'Der Hof von Euregio Motorcars an der Eschweilerstraße: anthrazitfarbene Halle, zwei gelbe Silos, davor die Fahrzeuge', 'hero-pic', '100vw', True)}</div>
+ <div class="hero-scrim" aria-hidden="true"></div>
+ <div class="wrap hero-in">
+  <p class="kicker">Eschweilerstraße 167 · Stolberg</p>
+  <h1 id="hero-h" class="split">Gute Gebrauchte. Ehrlich beschrieben.</h1>
+  <p class="hero-p">BMW, Land Rover, Mercedes-Benz, Porsche und mehr – der aktuelle Bestand, live aus unseren Inseraten. Dazu Werkstatt, Reifen, HU und Zulassung an einer Adresse.</p>
+  <form class="quick" action="fahrzeuge.html" method="get" data-quick role="search" aria-label="Bestand durchsuchen">
+   <label>Marke<select name="marke" data-quick-make><option value="">Alle Marken</option></select></label>
+   <label>Preis<select name="preis"><option value="">Alle Preise</option><option value="0-15000">bis 15.000 €</option><option value="15000-25000">15.000–25.000 €</option><option value="25000-35000">25.000–35.000 €</option><option value="35000-999999">ab 35.000 €</option></select></label>
+   <label>Aufbau<select name="kategorie" data-quick-kat><option value="">Alle</option></select></label>
+   <button class="btn mag" type="submit"><span data-quick-n>35</span>&nbsp;Autos anzeigen {arrow()}</button>
+  </form>
+  <p class="hero-meta"><span class="open-state" data-open-state>Mo–Fr 9–19 · Sa 9–14</span><a href="tel:{TEL_L}">{ICON['phone']} {TEL}</a><a href="{WA}" target="_blank" rel="noopener">{ICON['wa']} WhatsApp</a></p>
  </div>
- <div class="scene-static" aria-hidden="true"></div>
 </section>'''
 
 def home():
     GL, GB, GP = gear_parts()
-    body = scene() + f'''
+    body = hero() + f'''
 <section class="hof" id="hof" aria-labelledby="hof-h">
- <div class="hof-pin">
-  <div class="wrap hof-top"><p class="kicker">Heute auf dem Hof</p><h2 id="hof-h">Die neuesten Autos – live aus dem Bestand.</h2></div>
-  <div class="wrap hof-grid">
-   <div class="hof-stage" data-hof-stage><div class="hof-empty muted">Bestand wird geladen …</div><div class="hof-light" aria-hidden="true"></div></div>
-   <article class="tag" data-hof-tag aria-live="polite">
+ <div class="wrap">
+  <div class="hof-top">
+   <div><p class="kicker">Heute auf dem Hof</p><h2 id="hof-h" class="split">Neu im Bestand.</h2></div>
+   <div class="hof-ctrl"><button type="button" class="hof-prev" aria-label="Vorheriges Auto">‹</button><span data-hof-n aria-live="polite"></span><button type="button" class="hof-next" aria-label="Nächstes Auto">›</button></div>
+  </div>
+  <div class="hof-grid">
+   <div class="hof-stage" data-hof-stage tabindex="0" aria-label="Neue Autos – mit Pfeiltasten oder Wischen wechseln"><div class="hof-empty muted">Bestand wird geladen …</div><div class="hof-light" aria-hidden="true"></div></div>
+   <article class="tag" data-hof-tag>
     <div class="tag-in">
      <p class="tag-k" data-f="kategorie">&nbsp;</p>
      <h3 data-f="titel">&nbsp;</h3>
@@ -337,9 +322,10 @@ def home():
      </dl>
      <a class="btn mag" data-f="link" href="fahrzeuge.html">Zum Fahrzeug {arrow()}</a>
     </div>
-    <p class="tag-n" data-hof-n>&nbsp;</p>
    </article>
   </div>
+  <div class="hof-thumbs" data-hof-thumbs role="group" aria-label="Auto auswählen"></div>
+  <p class="hof-all"><a href="fahrzeuge.html">Alle <span data-live-count>35</span> Fahrzeuge ansehen {arrow()}</a></p>
  </div>
 </section>
 
@@ -426,7 +412,7 @@ def home():
 </section>'''
     page({'file': 'index.html', 'title': 'Euregio Motorcars Stolberg – Gebrauchtwagen & Service', 'desc': 'Gebrauchtwagen von BMW, Land Rover, Mercedes-Benz & mehr in Stolberg. Aktueller Bestand live, Probefahrt, Finanzierung, Werkstatt, HU vor Ort.',
           'over': True, 'body': 'home', 'bestand': True, 'js': ['home.js'],
-          'preload': '<link rel="preload" as="image" href="img/szene-hof-840-1600.webp" imagesrcset="img/szene-hof-840-800.webp 800w, img/szene-hof-840-1600.webp 1600w" imagesizes="100vw" fetchpriority="high">'}, body)
+          'preload': '<link rel="preload" as="image" href="img/szene-hof-1600.webp" imagesrcset="img/szene-hof-800.webp 800w, img/szene-hof-1600.webp 1600w" imagesizes="100vw" fetchpriority="high">'}, body)
 
 def gauge_svg(k, label, val, sub, v):
     ticks = []
@@ -769,7 +755,7 @@ def ueber():
 RATGEBER = [
  ('ratgeber-besichtigung.html', 'Gebrauchtwagen besichtigen: worauf es ankommt', 'Mit dieser Reihenfolge übersehen Sie bei der Besichtigung nichts – von den Papieren bis zur Probefahrt.', 'rr-cockpit', 'Cockpit eines Range Rover Sport mit Lenkrad und Mittelkonsole'),
  ('ratgeber-schlussrate.html', 'Finanzieren mit Schlussrate: so funktioniert es', 'Niedrige Monatsrate, hohe letzte Rate: was eine Ballonfinanzierung ist und wann sie passt – an einem echten Beispiel.', 'cockpit-840', 'Cockpit eines BMW 840d'),
- ('ratgeber-reservierung.html', 'Reserviert, aber noch online? Wie Reservierungen ablaufen', 'Warum ein Inserat manchmal noch zu sehen ist, obwohl das Auto reserviert ist – und wie Sie selbst reservieren.', 'svr-hof', 'Range Rover Sport SVR auf dem Hof'),
+ ('ratgeber-reservierung.html', 'Reserviert, aber noch online? Wie Reservierungen ablaufen', 'Warum ein Inserat manchmal noch zu sehen ist, obwohl das Auto reserviert ist – und wie Sie selbst reservieren.', 'szene-hof', 'Der Hof von Euregio Motorcars mit Halle und Silos'),
 ]
 
 def ratgeber():

@@ -33,3 +33,16 @@ Design-Read: Erste eigene Website eines Gebrauchtwagenhändlers mit gehobenem Be
 | Öffnungszeiten Mo–Fr 9–19, Sa 9–14 | Kopfzeile, kontakt.html, Fuß |
 | Impressum (GF Stanislaw Michaltschuk, HRB 16576 AG Aachen, USt-ID DE274354580) | impressum.html |
 | Kontakt: Tel., Mobil/WhatsApp, Fax, E-Mail | kontakt.html, Fuß |
+
+---
+
+## 2. Fassung (28.9.2026 abends) – nach Nils' Rückmeldung
+
+Nils: „gar nicht verkehrt“, aber: (1) ein Scroll-Through ist bei einem Autohändler nicht nötig, (2) Fotos teils abgeschnitten (z. B. BMW X6), (3) ein Abschnitt mit einem festen Auto (X6) bleibt stehen, obwohl das Auto verkauft wird, (4) „Heute auf dem Hof“ per Scrollen überspringt Autos, wenn man etwas zu weit scrollt.
+
+- **Einstieg statt Szene:** Hof-Übersichtsfoto (Halle + Silos, kein einzelnes Auto im Mittelpunkt), Headline, **Schnellsuche** (Marke, Preis, Aufbau – die Trefferzahl im Knopf zählt live mit) → führt gefiltert zu fahrzeuge.html. Kein Pin, kein Scroll-Through.
+- **„Heute auf dem Hof“ als Karussell:** Pfeile, Vorschaubilder (die 8 neuesten Autos mit echten Fotos), Wischen, Pfeiltasten. Kein Scroll-Pin mehr – nichts wird übersprungen.
+- **Keine festen Auto-Fotos mehr:** Seitenköpfe zeigen ein aktuelles Auto aus dem Bestand mit Bildunterschrift und Link („Gerade im Bestand: …“), ohne Skript das Hof-Foto. Service-Gänge ohne Fotos. Verkaufte Autos verschwinden damit überall automatisch.
+- **Fotos im Originalformat 4:3** (Seitenkopf, Karussell, Karten) – kein Panorama-Streifen mehr, nichts abgeschnitten.
+- **Schaltkulisse nur noch per Klick** (der Knauf legt beim ersten Hereinscrollen einmal den 1. Gang ein).
+- Gepinnt ist jetzt nichts mehr. Bewegung Startseite: 5 statt 9.

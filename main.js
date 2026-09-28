@@ -81,12 +81,12 @@
   });
   document.addEventListener('click', e => { if (!e.target.closest('.has-dd')) closeDds(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { const o = dds.find(li => li.classList.contains('open')); if (o) { setDd(o, false); $('button', o).focus(); } } });
-  const sceneEl = $('.scene');
+  const sceneEl = $('.hero');
   const overStart = head.classList.contains('over');
   let lastY = scrollY;
   const onScrollHead = () => {
     const y = scrollY;
-    const overZone = overStart && sceneEl && y < sceneEl.offsetHeight - innerHeight * 1.02;
+    const overZone = overStart && sceneEl && y < sceneEl.offsetHeight - 80;
     if (overStart) head.classList.toggle('over', !!overZone && !document.body.classList.contains('menu-open'));
     if (!document.body.classList.contains('menu-open') && !dds.some(li => li.classList.contains('open'))) {
       if (!overZone && y > 300 && y > lastY + 6 && y - lastY < 400) head.classList.add('hide');
@@ -95,7 +95,7 @@
     document.body.classList.toggle('hide-head', head.classList.contains('hide'));
     lastY = y;
     const sc = $('.sticky-cta');
-    if (sc) sc.classList.toggle('show', y > (sceneEl ? sceneEl.offsetHeight - innerHeight * .5 : 480) && !nearEnd() && !blockers.size);
+    if (sc) sc.classList.toggle('show', y > (sceneEl ? sceneEl.offsetHeight * .8 : 480) && !nearEnd() && !blockers.size);
   };
   // Leiste unten nicht über Hof-Preisschild, Formularen und Abschluss legen
   const blockers = new Set();
@@ -205,7 +205,7 @@
         scrollTrigger: el.closest('.hofkopf') ? null : { trigger: el, start: 'top 88%', once: true } });
     });
     $$('.lead, .kicker, .sec-head p, .svc-list li, .sa-list li, .ticks li, .facts div, .qa, .rg-list li, .form, .cols2 > div, .tool-head, .quotes figure, .contact-list li, .price-steps').forEach(el => {
-      if (el._rv || el.closest('.scene') || el.closest('.hof') || el.closest('.menu')) return; el._rv = 1;
+      if (el._rv || el.closest('.hero') || el.closest('.hof') || el.closest('.menu')) return; el._rv = 1;
       el.classList.add('rv');
       gsap.to(el, { opacity: 1, y: 0, duration: .8, ease: 'power3.out', delay: el.closest('.hofkopf') ? introDelay + .3 : 0,
         scrollTrigger: el.closest('.hofkopf') ? null : { trigger: el, start: 'top 92%', once: true } });
@@ -213,9 +213,23 @@
   };
   if (hasGsap && !motion) $$('.split .w').forEach(w => w.style.transform = 'none');
 
-  // ---------- Hof-Kopf: Panorama schwenkt beim Scrollen ----------
-  const hk = $('.hk-img');
-  if (hk && motion) gsap.fromTo(hk, { xPercent: 0 }, { xPercent: -12, ease: 'none', scrollTrigger: { trigger: '.hofkopf', start: 'top top', end: 'bottom top', scrub: .6 } });
+  // ---------- Seitenkopf: aktuelles Auto aus dem Bestand statt festem Foto ----------
+  bestand.then(b => {
+    if (!b) return;
+    const pool = b.fahrzeuge.filter(f => (f.bilderAnzahl || f.bilder.length) > 1);
+    $$('[data-live-photo]').forEach(fig => {
+      if (!pool.length) return;
+      const f = pool[+fig.dataset.livePhoto % pool.length];
+      const im = $('img', fig), cap = $('figcaption', fig);
+      const kurz = String(f.titel).replace(/\s*[-/]+\s*$/, '').replace(/\s+-\s+/g, ' · ');
+      const pre = new Image(); pre.src = pic(f.bilder[0], 1024);
+      pre.onload = () => {
+        im.style.opacity = 0;
+        setTimeout(() => { im.src = pre.src; im.srcset = picSet(f.bilder[0]); im.alt = kurz + ' auf dem Hof von Euregio Motorcars'; im.style.opacity = 1; }, 180);
+        cap.innerHTML = `Gerade im Bestand: <a href="fahrzeug.html?id=${encodeURIComponent(f.id)}">${esc(kurz)} · ${eur(f.preis)}</a>`; cap.hidden = false;
+      };
+    });
+  });
 
   // ---------- Karte erst auf Klick ----------
   $$('[data-map]').forEach(m => $('.map-load', m).addEventListener('click', () => {
