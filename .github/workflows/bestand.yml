@@ -1,0 +1,33 @@
+name: Bestand aktualisieren
+
+# Holt stündlich den aktuellen Fahrzeugbestand von mobile.de und veröffentlicht ihn,
+# wenn sich etwas geändert hat. Braucht die Secrets MOBILE_API_USER und MOBILE_API_PASS.
+on:
+  schedule:
+    - cron: '7 5-20 * * *'   # stündlich 7 Minuten nach, 7–22 Uhr deutscher Zeit
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  bestand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Bestand von mobile.de holen
+        env:
+          MOBILE_API_USER: ${{ secrets.MOBILE_API_USER }}
+          MOBILE_API_PASS: ${{ secrets.MOBILE_API_PASS }}
+        run: node scripts/api-holen.js
+      - name: Änderungen veröffentlichen
+        run: |
+          if git diff --quiet -- data/; then echo "Keine Änderung am Bestand."; exit 0; fi
+          git config user.name "Bestand-Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/
+          git commit -m "Bestand aktualisiert $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
